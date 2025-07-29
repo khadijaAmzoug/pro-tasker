@@ -1,9 +1,9 @@
-
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 
 import connectDB from './config/db.js'; // database connection file
+import usersRouter from './routes/users.js'; // import user routes
 
 // Load environment variables from .env file
 dotenv.config();
@@ -19,12 +19,15 @@ app.use(express.json());
 // Enable CORS
 app.use(cors());
 
+// Routes
+app.use('/api/users', usersRouter); // user-related endpoints (register, login)
+
 // Example root route
 app.get('/', (req, res) => {
   res.send('API is running...');
 });
 
-// Centralized error handlers can be added later here...
+// Centralized error handlers can be added here later
 
 const PORT = process.env.PORT || 5000;
 
