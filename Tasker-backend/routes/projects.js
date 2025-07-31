@@ -7,8 +7,8 @@ import {
   deleteProject,
 } from '../controllers/projectController.js'
 
-import protect from '../middleware/authMiddleware.js' // Middleware to protect routes (user must be logged in)
-import { verifyProjectOwnership } from '../middleware/ownershipMiddleware.js' // Middleware to check project ownership
+import protect from '../middleware/authMiddleware.js'
+import { isProjectOwner } from '../middleware/ownershipMiddleware.js'
 
 const router = express.Router()
 
@@ -24,17 +24,17 @@ router.get('/', protect, getProjects)
 
 // @route   GET /api/projects/:id
 // @desc    Get a single project by ID
-// @access  Private
-router.get('/:id', protect, verifyProjectOwnership, getProjectById)
+// @access  Private (must be the project owner)
+router.get('/:id', protect, isProjectOwner, getProjectById)
 
 // @route   PUT /api/projects/:id
 // @desc    Update a project
-// @access  Private
-router.put('/:id', protect, verifyProjectOwnership, updateProject)
+// @access  Private (must be the project owner)
+router.put('/:id', protect, isProjectOwner, updateProject)
 
 // @route   DELETE /api/projects/:id
 // @desc    Delete a project
-// @access  Private
-router.delete('/:id', protect, verifyProjectOwnership, deleteProject)
+// @access  Private (must be the project owner)
+router.delete('/:id', protect, isProjectOwner, deleteProject)
 
 export default router
