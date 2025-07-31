@@ -3,7 +3,9 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 
 import connectDB from './config/db.js'; // database connection file
-import usersRouter from './routes/users.js'; // import user routes
+import usersRouter from './routes/users.js';
+import projectsRouter from './routes/projects.js';
+import tasksRouter from './routes/tasks.js'; // task routes
 
 // Load environment variables from .env file
 dotenv.config();
@@ -20,9 +22,11 @@ app.use(express.json());
 app.use(cors());
 
 // Routes
-app.use('/api/users', usersRouter); // user-related endpoints (register, login)
+app.use('/api/users', usersRouter); // register, login
+app.use('/api/projects', projectsRouter); // create, read, update, delete projects
+app.use('/api', tasksRouter); // handles tasks under /projects/:projectId/tasks and /tasks/:taskId
 
-// Example root route
+// Root route
 app.get('/', (req, res) => {
   res.send('API is running...');
 });
@@ -31,7 +35,6 @@ app.get('/', (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 
-// Start server after DB connection
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
