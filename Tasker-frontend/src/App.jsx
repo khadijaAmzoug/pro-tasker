@@ -1,8 +1,8 @@
-// File: src/App.jsx
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext"; // wrap the app
 import ProtectedRoute from "./routes/ProtectedRoute";
 import Login from "./pages/Login";
+import Register from "./pages/Register"; // ← NEW
 
 // Simple dashboard placeholder
 function Dashboard() {
@@ -24,6 +24,7 @@ export default function App() {
 
           {/* Public routes */}
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} /> {/* ← NEW */}
 
           {/* Protected routes */}
           <Route element={<ProtectedRoute />}>
