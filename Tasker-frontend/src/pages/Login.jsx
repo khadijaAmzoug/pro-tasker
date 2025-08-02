@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useLogin from "../hooks/useLogin";   // calls POST /users/login
 import { useAuth } from "../context/AuthContext"; // has isAuthenticated
+import { Link } from "react-router-dom";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -59,6 +60,12 @@ export default function Login() {
             {loading ? "Checking..." : "Login"}
           </button>
         </form>
+        <p className="text-sm text-center text-[#283593] mt-4">
+  Don't have an account?{" "}
+  <Link to="/register" className="underline decoration-[#4DD0E1]">
+    Sign up
+  </Link>
+</p>
       </div>
     </div>
   );
