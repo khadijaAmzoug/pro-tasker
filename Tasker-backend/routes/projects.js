@@ -6,6 +6,9 @@ import {
   updateProject,
   deleteProject,
 } from '../controllers/projectController.js'
+import { inviteCollaborator } from "../controllers/inviteController.js";
+import { isProjectOwner } from "../middleware/ownership.js";
+import { protect } from "../middleware/authMiddleware.js";
 
 import protect from '../middleware/authMiddleware.js'
 import { isProjectOwner } from '../middleware/ownershipMiddleware.js'
@@ -36,5 +39,9 @@ router.put('/:id', protect, isProjectOwner, updateProject)
 // @desc    Delete a project
 // @access  Private (must be the project owner)
 router.delete('/:id', protect, isProjectOwner, deleteProject)
+
+
+router.post("/:id/invite", protect, isProjectOwner, inviteCollaborator);
+
 
 export default router
