@@ -1,4 +1,3 @@
-// File: src/pages/ProjectDetails.jsx
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import useApi from "../hooks/useApi";
@@ -9,11 +8,13 @@ import Navbar from "../components/Navbar";
  * - GET /projects/:id → project info
  * - GET /projects/:id/tasks → list tasks
  * - POST /projects/:id/tasks → create task
+ * - PATCH /projects/:id/tasks/:taskId → update task (status/title/description)
+ * - DELETE /projects/:id/tasks/:taskId → delete task
  */
 export default function ProjectDetails() {
   const { id } = useParams();
 
-  // loaders for project and tasks (independent states)
+  // project loader
   const {
     request: fetchProject,
     data: project,
@@ -21,6 +22,7 @@ export default function ProjectDetails() {
     error: errorProject,
   } = useApi();
 
+  // tasks loader
   const {
     request: fetchTasks,
     data: tasks,
@@ -28,10 +30,23 @@ export default function ProjectDetails() {
     error: errorTasks,
   } = useApi();
 
+  // create task
   const {
     request: createTaskReq,
     loading: creatingTask,
     error: errorCreateTask,
+  } = useApi();
+
+  // update task
+  const {
+    request: updateTaskReq,
+    loading: updatingTask,
+  } = useApi();
+
+  // delete task
+  const {
+    request: deleteTaskReq,
+    loading: deletingTask,
   } = useApi();
 
   // form: create task
@@ -45,6 +60,10 @@ export default function ProjectDetails() {
     fetchTasks({ url: `/projects/${id}/tasks`, method: "GET" });
   }, [id, fetchProject, fetchTasks]);
 
+  // refresh tasks helper
+  const refreshTasks = () =>
+    fetchTasks({ url: `/projects/${id}/tasks`, method: "GET" });
+
   // create new task
   const onCreateTask = async (e) => {
     e.preventDefault();
@@ -55,12 +74,50 @@ export default function ProjectDetails() {
         method: "POST",
         data: { title, description, status: "To Do" },
       });
-      // refresh list
-      await fetchTasks({ url: `/projects/${id}/tasks`, method: "GET" });
       setTitle("");
       setDescription("");
+      await refreshTasks();
     } catch {
       // error shown below
+    }
+  };
+
+  // update task status (or other fields if needed)
+  const onUpdateStatus = async (taskId, nextStatus) => {
+    try {
+      await updateTaskReq({
+        url: `/projects/${id}/tasks/${taskId}`,
+        method: "PATCH",
+        data: { status: nextStatus }, // backend should accept partial update
+      });
+      await refreshTasks();
+    } catch {
+      // show handled by hook via console/UI if you add it
+    }
+  };
+
+  // delete task
+  const onDeleteTask = async (taskId) => {
+    if (!confirm("Delete this task?")) return;
+    try {
+      await deleteTaskReq({
+        url: `/projects/${id}/tasks/${taskId}`,
+        method: "DELETE",
+      });
+      await refreshTasks();
+    } catch {
+      // handled by hook
+    }
+  };
+
+  const statusBadge = (status) => {
+    switch ((status || "To Do").toLowerCase()) {
+      case "in progress":
+        return "bg-[#4DD0E1] text-[#283593]"; 
+      case "done":
+        return "bg-[#66BB6A] text-white";
+      default:
+        return "bg-[#F5E1A4] text-[#283593]"; 
     }
   };
 
@@ -149,19 +206,48 @@ export default function ProjectDetails() {
                   key={t._id || t.id}
                   className="border border-[#4DD0E1] rounded-md p-3"
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    {/* left: info */}
+                    <div className="min-w-[200px]">
                       <p className="font-semibold text-[#283593]">{t.title}</p>
                       {t.description && (
                         <p className="text-sm text-[#283593] opacity-80">
                           {t.description}
                         </p>
                       )}
-                      <span className="inline-block mt-1 px-2 py-0.5 text-xs rounded-full bg-[#F5E1A4] text-[#283593]">
+                      <span
+                        className={`inline-block mt-1 px-2 py-0.5 text-xs rounded-full ${statusBadge(
+                          t.status
+                        )}`}
+                      >
                         {t.status || "To Do"}
                       </span>
                     </div>
-                    {/* مكان للأزرار لاحقًا: update status / delete */}
+
+                    {/* right: actions */}
+                    <div className="flex items-center gap-2">
+                      {/* Status select */}
+                      <select
+                        className="border border-[#4DD0E1] rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-[#4DD0E1]"
+                        value={t.status || "To Do"}
+                        onChange={(e) => onUpdateStatus(t._id || t.id, e.target.value)}
+                        disabled={updatingTask || deletingTask}
+                      >
+                        <option>To Do</option>
+                        <option>In Progress</option>
+                        <option>Done</option>
+                      </select>
+
+                      {/* Delete */}
+                      <button
+                        onClick={() => onDeleteTask(t._id || t.id)}
+                        disabled={updatingTask || deletingTask}
+                        className="px-3 py-1.5 rounded-md text-white text-sm bg-[#E57373] hover:opacity-90 disabled:opacity-60 transition-opacity"
+                        title="Delete task"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </div>
                 </li>
               ))}

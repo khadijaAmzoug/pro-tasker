@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard"; 
 import Projects from "./pages/Projects";
+import ProjectDetails from "./pages/ProjectDetails";
 
 
 export default function App() {
@@ -19,6 +20,7 @@ export default function App() {
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/projects" element={<Projects />} />
+              <Route path="/projects/:id" element={<ProjectDetails />} /> 
           </Route>
 
           <Route path="*" element={<div className="p-6">Not Found</div>} />
