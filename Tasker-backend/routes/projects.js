@@ -1,7 +1,7 @@
 import express from 'express'
 import {
   createProject,
-  getProjects,
+  getAllProjects,
   getProjectById,
   updateProject,
   deleteProject,
@@ -20,7 +20,7 @@ router.post('/', protect, createProject)
 // @route   GET /api/projects
 // @desc    Get all projects for the logged-in user
 // @access  Private
-router.get('/', protect, getProjects)
+router.get('/', protect, getAllProjects)
 
 // @route   GET /api/projects/:id
 // @desc    Get a single project by ID

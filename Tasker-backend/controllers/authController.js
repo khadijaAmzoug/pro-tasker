@@ -5,6 +5,7 @@ import generateToken from '../utils/generateToken.js'
 // @route   POST /api/users/register
 // @access  Public
 export const registerUser = async (req, res) => {
+  console.log(req.body)
   const { name, email, password } = req.body
 
   // Check if the user already exists
@@ -33,6 +34,7 @@ export const registerUser = async (req, res) => {
 // @route   POST /api/users/login
 // @access  Public
 export const loginUser = async (req, res) => {
+  console.log(req.body)
   const { email, password } = req.body
 
   // Find user by email

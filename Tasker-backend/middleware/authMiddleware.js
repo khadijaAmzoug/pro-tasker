@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 
 // Middleware to protect routes by verifying JWT token
-export const protect = async (req, res, next) => {
+const protect = async (req, res, next) => {
   // Get token from Authorization header (if it exists)
   let token = req.headers.authorization?.split(' ')[1];
 
@@ -28,3 +28,4 @@ export const protect = async (req, res, next) => {
     res.status(401).json({ message: 'Not authorized, token failed' });
   }
 };
+export default protect
