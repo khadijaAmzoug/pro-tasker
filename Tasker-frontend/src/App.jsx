@@ -4,6 +4,8 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard"; 
+import Projects from "./pages/Projects";
+
 
 export default function App() {
   return (
@@ -16,6 +18,7 @@ export default function App() {
 
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/projects" element={<Projects />} />
           </Route>
 
           <Route path="*" element={<div className="p-6">Not Found</div>} />
