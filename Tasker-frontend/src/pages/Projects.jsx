@@ -1,15 +1,17 @@
-// File: src/pages/Projects.jsx
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import useApi from "../hooks/useApi";
 import Navbar from "../components/Navbar";
 
 /**
  * Projects Page
- * - GET /projects → list user projects
- * - POST /projects → create a new project
+ * - GET /projects → list
+ * - POST /projects → create
+ * - PATCH /projects/:id → update
+ * - DELETE /projects/:id → delete
  */
 export default function Projects() {
-  // list fetcher
+  // list loader
   const {
     request: fetchReq,
     data: list,
@@ -17,40 +19,83 @@ export default function Projects() {
     error: errorList,
   } = useApi();
 
-  // create fetcher (separate to have independent loading/error)
+  // create loader
   const {
     request: createReq,
     loading: loadingCreate,
     error: errorCreate,
   } = useApi();
 
-  // form state
+  // update loader
+  const {
+    request: updateReq,
+    loading: loadingUpdate,
+    error: errorUpdate,
+  } = useApi();
+
+  // delete loader
+  const {
+    request: deleteReq,
+    loading: loadingDelete,
+    error: errorDelete,
+  } = useApi();
+
+  // create form
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
 
-  // load projects on mount
-  useEffect(() => {
-    fetchReq({ url: "/projects", method: "GET" });
-  }, [fetchReq]);
+  // inline edit state
+  const [editId, setEditId] = useState(null);
+  const [editName, setEditName] = useState("");
+  const [editDesc, setEditDesc] = useState("");
 
-  // handle create
+  // load projects
+  const reload = () => fetchReq({ url: "/projects", method: "GET" });
+  useEffect(() => {
+    reload();
+  }, []); // eslint-disable-line
+
+  // create
   const onCreate = async (e) => {
     e.preventDefault();
     if (!name.trim()) return;
-    try {
-      await createReq({
-        url: "/projects",
-        method: "POST",
-        data: { name, description },
-      });
-      // refresh list
-      await fetchReq({ url: "/projects", method: "GET" });
-      // reset form
-      setName("");
-      setDescription("");
-    } catch {
-      // error displayed below
-    }
+    await createReq({ url: "/projects", method: "POST", data: { name, description } });
+    setName("");
+    setDescription("");
+    await reload();
+  };
+
+  // start edit
+  const startEdit = (p) => {
+    setEditId(p._id || p.id);
+    setEditName(p.name || "");
+    setEditDesc(p.description || "");
+  };
+
+  // cancel edit
+  const cancelEdit = () => {
+    setEditId(null);
+    setEditName("");
+    setEditDesc("");
+  };
+
+  // save edit
+  const saveEdit = async () => {
+    if (!editId || !editName.trim()) return;
+    await updateReq({
+      url: `/projects/${editId}`,
+      method: "PATCH",
+      data: { name: editName, description: editDesc },
+    });
+    cancelEdit();
+    await reload();
+  };
+
+  // delete
+  const onDelete = async (id) => {
+    if (!confirm("Delete this project?")) return;
+    await deleteReq({ url: `/projects/${id}`, method: "DELETE" });
+    await reload();
   };
 
   return (
@@ -61,29 +106,22 @@ export default function Projects() {
 
         {/* Create form */}
         <form onSubmit={onCreate} className="mb-6 space-y-3 bg-white border border-[#FFA07A] rounded-xl p-4">
-          <div>
-            <label className="block text-sm mb-1 text-[#283593]">Name</label>
-            <input
-              className="w-full px-3 py-2 border border-[#4DD0E1] rounded-md focus:outline-none focus:ring-2 focus:ring-[#4DD0E1]"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Project name"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm mb-1 text-[#283593]">Description (optional)</label>
-            <textarea
-              className="w-full px-3 py-2 border border-[#4DD0E1] rounded-md focus:outline-none focus:ring-2 focus:ring-[#4DD0E1]"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Short description"
-              rows={3}
-            />
-          </div>
-          {errorCreate && (
-            <p className="text-[#E57373] text-sm">Error: {errorCreate}</p>
-          )}
+          <h2 className="text-lg font-semibold text-[#283593]">Create Project</h2>
+          <input
+            className="w-full px-3 py-2 border border-[#4DD0E1] rounded-md focus:outline-none focus:ring-2 focus:ring-[#4DD0E1]"
+            placeholder="Project name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
+          <textarea
+            className="w-full px-3 py-2 border border-[#4DD0E1] rounded-md focus:outline-none focus:ring-2 focus:ring-[#4DD0E1]"
+            placeholder="Short description (optional)"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={3}
+          />
+          {errorCreate && <p className="text-[#E57373] text-sm">Error: {errorCreate}</p>}
           <button
             type="submit"
             disabled={loadingCreate}
@@ -93,12 +131,13 @@ export default function Projects() {
           </button>
         </form>
 
-        {/* Projects list */}
+        {/* List */}
         <div className="bg-white border border-[#FFA07A] rounded-xl p-4">
           <h2 className="text-lg font-semibold text-[#283593] mb-3">Your projects</h2>
-
           {loadingList && <p>Loading...</p>}
           {errorList && <p className="text-[#E57373]">Error: {errorList}</p>}
+          {errorUpdate && <p className="text-[#E57373]">Update error: {errorUpdate}</p>}
+          {errorDelete && <p className="text-[#E57373]">Delete error: {errorDelete}</p>}
 
           {!loadingList && !errorList && Array.isArray(list) && list.length === 0 && (
             <p className="text-sm text-[#283593]">No projects yet. Create your first one!</p>
@@ -106,24 +145,81 @@ export default function Projects() {
 
           <ul className="space-y-2">
             {Array.isArray(list) &&
-              list.map((p) => (
-                <li
-                  key={p._id || p.id}
-                  className="border border-[#4DD0E1] rounded-md p-3"
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-semibold text-[#283593]">{p.name}</p>
-                      {p.description && (
-                        <p className="text-sm text-[#283593] opacity-80">
-                          {p.description}
-                        </p>
-                      )}
-                    </div>
-                    {/* later: add View/Edit/Delete actions */}
-                  </div>
-                </li>
-              ))}
+              list.map((p) => {
+                const pid = p._id || p.id;
+                const isEditing = editId === pid;
+
+                return (
+                  <li key={pid} className="border border-[#4DD0E1] rounded-md p-3">
+                    {/* View mode */}
+                    {!isEditing && (
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <Link
+                            to={`/projects/${pid}`}
+                            className="font-semibold text-[#283593] underline decoration-[#4DD0E1]"
+                          >
+                            {p.name}
+                          </Link>
+                          {p.description && (
+                            <p className="text-sm text-[#283593] opacity-80">{p.description}</p>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => startEdit(p)}
+                            className="px-3 py-1.5 rounded-md text-sm bg-[#4DD0E1] text-[#283593] hover:opacity-90"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => onDelete(pid)}
+                            disabled={loadingDelete}
+                            className="px-3 py-1.5 rounded-md text-sm text-white bg-[#E57373] hover:opacity-90 disabled:opacity-60"
+                          >
+                            {loadingDelete ? "Deleting..." : "Delete"}
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Edit mode */}
+                    {isEditing && (
+                      <div className="space-y-2">
+                        <input
+                          className="w-full px-3 py-2 border border-[#4DD0E1] rounded-md focus:outline-none focus:ring-2 focus:ring-[#4DD0E1]"
+                          value={editName}
+                          onChange={(e) => setEditName(e.target.value)}
+                          placeholder="Project name"
+                          required
+                        />
+                        <textarea
+                          className="w-full px-3 py-2 border border-[#4DD0E1] rounded-md focus:outline-none focus:ring-2 focus:ring-[#4DD0E1]"
+                          value={editDesc}
+                          onChange={(e) => setEditDesc(e.target.value)}
+                          placeholder="Short description"
+                          rows={3}
+                        />
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={saveEdit}
+                            disabled={loadingUpdate}
+                            className="px-3 py-1.5 rounded-md text-white bg-[#66BB6A] hover:opacity-90 disabled:opacity-60"
+                          >
+                            {loadingUpdate ? "Saving..." : "Save"}
+                          </button>
+                          <button
+                            onClick={cancelEdit}
+                            className="px-3 py-1.5 rounded-md bg-white border border-[#4DD0E1] text-[#283593] hover:bg-[#F5E1A4]"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </li>
+                );
+              })}
           </ul>
         </div>
       </div>
