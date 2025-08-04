@@ -83,7 +83,7 @@ export const updateProject = async (req, res) => {
 
 /**
  * DELETE /api/projects/:id
- * - Delete project (غالبًا المالك فقط)
+ * - Delete project 
  */
 export const deleteProject = async (req, res) => {
   try {
