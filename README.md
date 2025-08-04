@@ -93,12 +93,12 @@ VITE_API_BASE_URL=https://pro-tasker.onrender.com
 
 ##  Testing Summary
 
-- ✔ Registration and login tested (with valid/invalid data)
-- ✔ JWT token is stored and used in headers
-- ✔ Project CRUD tested (create, edit, delete)
-- ✔ Task CRUD tested (nested under projects)
-- ✔ Errors and edge cases handled with appropriate messages
-- ✔ Deployed versions tested on different devices and browsers
+-  Registration and login tested (with valid/invalid data)
+-  JWT token is stored and used in headers
+-  Project CRUD tested (create, edit, delete)
+-  Task CRUD tested (nested under projects)
+- Errors and edge cases handled with appropriate messages
+-  Deployed versions tested on different devices and browsers
 
 ---
 

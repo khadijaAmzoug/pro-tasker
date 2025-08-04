@@ -1,4 +1,3 @@
-// File: backend/middleware/ownership.js
 import Project from "../models/Project.js";
 import Task from "../models/Task.js";
 

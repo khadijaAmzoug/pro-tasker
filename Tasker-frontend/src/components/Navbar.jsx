@@ -60,7 +60,6 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* Optional subtle strip using Soft Sand */}
       <div className="h-1 w-full bg-[#F5E1A4]" />
     </header>
   );

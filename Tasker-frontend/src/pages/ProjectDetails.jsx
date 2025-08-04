@@ -1,4 +1,3 @@
-// File: src/pages/ProjectDetails.jsx
 
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
@@ -80,7 +79,7 @@ export default function ProjectDetails() {
   const saveEdit = async () => {
     if (!editId || !editTitle.trim()) return;
     await updateTaskReq({
-      url: `/api/tasks/${editId}`, // ✅ PATCH URL is now correct
+      url: `/api/tasks/${editId}`, 
       method: "PUT",
       data: { title: editTitle, description: editDesc },
     });
@@ -91,7 +90,7 @@ export default function ProjectDetails() {
   // Change task status
   const onUpdateStatus = async (taskId, nextStatus) => {
     await updateTaskReq({
-      url: `/api/tasks/${taskId}`, // ✅ PATCH URL is now correct
+      url: `/api/tasks/${taskId}`, 
       method: "PUT",
       data: { status: nextStatus },
     });
@@ -102,7 +101,7 @@ export default function ProjectDetails() {
   const onDeleteTask = async (taskId) => {
     if (!confirm("Delete this task?")) return;
     await deleteTaskReq({
-      url: `/api/tasks/${taskId}`, // ✅ DELETE URL is now correct
+      url: `/api/tasks/${taskId}`,
       method: "DELETE",
     });
     await refreshTasks();

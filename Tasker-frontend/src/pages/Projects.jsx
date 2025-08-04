@@ -53,7 +53,7 @@ export default function Projects() {
   const reload = () => fetchReq({ url: "/api/projects", method: "GET" });
   useEffect(() => {
     reload();
-  }, []); // eslint-disable-line
+  }, []); 
 
   // create
   const onCreate = async (e) => {

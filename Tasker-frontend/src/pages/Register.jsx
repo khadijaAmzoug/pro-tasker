@@ -32,7 +32,7 @@ export default function Register() {
     }
 
     try {
-      // Adjust endpoint if your backend differs (e.g. /auth/register)
+      
       await request({
         url: "/api/users/register",
         method: "POST",
