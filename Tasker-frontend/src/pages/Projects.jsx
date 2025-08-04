@@ -59,7 +59,7 @@ export default function Projects() {
   const onCreate = async (e) => {
     e.preventDefault();
     if (!name.trim()) return;
-    await createReq({ url: "/projects", method: "POST", data: { name, description } });
+    await createReq({ url: "/api/projects", method: "POST", data: { name, description } });
     setName("");
     setDescription("");
     await reload();
@@ -84,10 +84,10 @@ export default function Projects() {
   // save edit
   const saveEdit = async () => {
     console.log("🔍 editId:", editId);
-console.log("🔗 PATCH URL:", `/projects/${editId}`);
+console.log("🔗 PATCH URL:", `/api/projects/${editId}`);
     if (!editId || !editName.trim()) return;
     await updateReq({
-      url: `/projects/${editId}`,
+      url: `/api/projects/${editId}`,
       method: "PATCH",
       data: { name: editName, description: editDesc },
     });
@@ -98,7 +98,7 @@ console.log("🔗 PATCH URL:", `/projects/${editId}`);
   // delete
   const onDelete = async (id) => {
     if (!confirm("Delete this project?")) return;
-    await deleteReq({ url: `/projects/${id}`, method: "DELETE" });
+    await deleteReq({ url: `/api/projects/${id}`, method: "DELETE" });
     await reload();
   };
 
