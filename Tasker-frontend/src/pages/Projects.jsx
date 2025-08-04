@@ -74,6 +74,8 @@ export default function Projects() {
 
   // cancel edit
   const cancelEdit = () => {
+      console.log("Editing project:", p); // 
+
     setEditId(null);
     setEditName("");
     setEditDesc("");
@@ -81,6 +83,8 @@ export default function Projects() {
 
   // save edit
   const saveEdit = async () => {
+    console.log("🔍 editId:", editId);
+console.log("🔗 PATCH URL:", `/projects/${editId}`);
     if (!editId || !editName.trim()) return;
     await updateReq({
       url: `/projects/${editId}`,

@@ -1,17 +1,14 @@
 import express from 'express'
 import {
   createProject,
-  getAllProjects,
+  listProjects,
   getProjectById,
   updateProject,
   deleteProject,
 } from '../controllers/projectController.js'
 import { inviteCollaborator } from "../controllers/inviteController.js";
-import { isProjectOwner } from "../middleware/ownership.js";
-import { protect } from "../middleware/authMiddleware.js";
-
-import protect from '../middleware/authMiddleware.js'
-import { isProjectOwner } from '../middleware/ownershipMiddleware.js'
+import { isProjectOwner } from "../middleware/ownershipMiddleware.js";
+import protect from "../middleware/authMiddleware.js";
 
 const router = express.Router()
 
@@ -23,7 +20,7 @@ router.post('/', protect, createProject)
 // @route   GET /api/projects
 // @desc    Get all projects for the logged-in user
 // @access  Private
-router.get('/', protect, getAllProjects)
+router.get('/', protect, listProjects)
 
 // @route   GET /api/projects/:id
 // @desc    Get a single project by ID
@@ -42,6 +39,9 @@ router.delete('/:id', protect, isProjectOwner, deleteProject)
 
 
 router.post("/:id/invite", protect, isProjectOwner, inviteCollaborator);
+
+router.patch("/:id", protect, isProjectOwner, updateProject);
+
 
 
 export default router

@@ -1,90 +1,98 @@
-import Project from '../models/Project.js' // Import the Project model
+// File: backend/controllers/projectController.js
+import Project from "../models/Project.js";
 
-// @desc    Create a new project
-// @route   POST /api/projects
-// @access  Private
-export const createProject = async (req, res) => {
+/**
+ * GET /api/projects
+ * - List projects owned by the current user
+ */
+export const listProjects = async (req, res) => {
   try {
-    const { title, description } = req.body
-
-    // Create a new project and associate it with the logged-in user
-    const project = await Project.create({
-      title,
-      description,
-      owner: req.user._id, // user must be authenticated
-    })
-
-    res.status(201).json(project)
-  } catch (error) {
-    res.status(500).json({ message: 'Server error while creating project' })
+    const docs = await Project.find({ owner: req.user.id })
+      .sort({ createdAt: -1 })
+      .lean();
+    res.json(docs);
+  } catch (err) {
+    console.error("listProjects:", err.message);
+    res.status(500).json({ message: "Server error" });
   }
-}
+};
 
-// @desc    Get all projects for the logged-in user
-// @route   GET /api/projects
-// @access  Private
-export const getAllProjects = async (req, res) => {
-  try {
-    const projects = await Project.find({ owner: req.user._id })
-    res.json(projects)
-  } catch (error) {
-    res.status(500).json({ message: 'Server error while fetching projects' })
-  }
-}
-
-// @desc    Get a single project by ID
-// @route   GET /api/projects/:id
-// @access  Private
+/**
+ * GET /api/projects/:id
+ * - Get single project (owner or collaborator should be checked in middleware)
+ * - Optional: populate collaborators to show (name/email)
+ */
 export const getProjectById = async (req, res) => {
   try {
-    const project = await Project.findById(req.params.id)
-
-    if (!project || project.owner.toString() !== req.user._id.toString()) {
-      return res.status(404).json({ message: 'Project not found or unauthorized' })
-    }
-
-    res.json(project)
-  } catch (error) {
-    res.status(500).json({ message: 'Server error while fetching project' })
+    const doc = await Project.findById(req.params.id)
+      .populate("collaborators", "name email _id")
+      .lean();
+    if (!doc) return res.status(404).json({ message: "Project not found" });
+    res.json(doc);
+  } catch (err) {
+    console.error("getProjectById:", err.message);
+    res.status(500).json({ message: "Server error" });
   }
-}
+};
 
-// @desc    Update a project
-// @route   PUT /api/projects/:id
-// @access  Private
+/**
+ * POST /api/projects
+ * - Create new project with { name, description }
+ */
+export const createProject = async (req, res) => {
+  try {
+    const { name, description = "" } = req.body;
+    if (!name?.trim()) {
+      return res.status(400).json({ message: "Name is required" });
+    }
+    const doc = await Project.create({
+      name: name.trim(),
+      description: description.trim(),
+      owner: req.user.id,
+    });
+    res.status(201).json(doc);
+  } catch (err) {
+    console.error("createProject:", err.message);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+/**
+ * PATCH /api/projects/:id
+ * - Update project (owner or collaborator? عادةً المالك فقط للتعديلات)
+ * - Accepts partial { name?, description? }
+ */
 export const updateProject = async (req, res) => {
   try {
-    const { title, description } = req.body
-    const project = await Project.findById(req.params.id)
+    const fields = {};
+    if (typeof req.body.name === "string") fields.name = req.body.name.trim();
+    if (typeof req.body.description === "string")
+      fields.description = req.body.description.trim();
 
-    if (!project || project.owner.toString() !== req.user._id.toString()) {
-      return res.status(404).json({ message: 'Project not found or unauthorized' })
-    }
-
-    project.title = title || project.title
-    project.description = description || project.description
-
-    const updatedProject = await project.save()
-    res.json(updatedProject)
-  } catch (error) {
-    res.status(500).json({ message: 'Server error while updating project' })
+    const doc = await Project.findByIdAndUpdate(
+      req.params.id,
+      { $set: fields },
+      { new: true }
+    );
+    if (!doc) return res.status(404).json({ message: "Project not found" });
+    res.json(doc);
+  } catch (err) {
+    console.error("updateProject:", err.message);
+    res.status(500).json({ message: "Server error" });
   }
-}
+};
 
-// @desc    Delete a project
-// @route   DELETE /api/projects/:id
-// @access  Private
+/**
+ * DELETE /api/projects/:id
+ * - Delete project (غالبًا المالك فقط)
+ */
 export const deleteProject = async (req, res) => {
   try {
-    const project = await Project.findById(req.params.id)
-
-    if (!project || project.owner.toString() !== req.user._id.toString()) {
-      return res.status(404).json({ message: 'Project not found or unauthorized' })
-    }
-
-    await project.deleteOne()
-    res.json({ message: 'Project deleted' })
-  } catch (error) {
-    res.status(500).json({ message: 'Server error while deleting project' })
+    const doc = await Project.findByIdAndDelete(req.params.id);
+    if (!doc) return res.status(404).json({ message: "Project not found" });
+    res.json({ message: "Project deleted" });
+  } catch (err) {
+    console.error("deleteProject:", err.message);
+    res.status(500).json({ message: "Server error" });
   }
-}
+};

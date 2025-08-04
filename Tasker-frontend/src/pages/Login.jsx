@@ -1,4 +1,3 @@
-// File: src/pages/Login.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useLogin from "../hooks/useLogin";   // calls POST /users/login
@@ -14,11 +13,17 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("🟡 handleSubmit started", { email, password });
+
+      console.log("Submitting login..."); 
     try {
       // backend returns { user, token }
       await login({ email, password }); // saves in context + localStorage
+       console.log("🟢 login success, navigating...");
       navigate("/dashboard"); // no reload needed
     } catch {
+          console.log("🔴 login failed");
+
       // error already handled in hook → `error`
     }
   };

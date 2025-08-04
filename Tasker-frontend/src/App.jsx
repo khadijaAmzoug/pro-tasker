@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import Login from "./pages/Login";
@@ -10,8 +10,7 @@ import ProjectDetails from "./pages/ProjectDetails";
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
+     
         <Routes>
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<Login />} />
@@ -25,7 +24,6 @@ export default function App() {
 
           <Route path="*" element={<div className="p-6">Not Found</div>} />
         </Routes>
-      </AuthProvider>
-    </BrowserRouter>
+     
   );
 }

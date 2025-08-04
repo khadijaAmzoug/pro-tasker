@@ -19,6 +19,7 @@ export const AuthProvider = ({ children }) => {
 
   // Login: save token & user
   const login = (newToken, newUser) => {
+    console.log("✅ AuthContext login called", { newToken, newUser });
     localStorage.setItem("token", newToken);
     localStorage.setItem("user", JSON.stringify(newUser));
     setToken(newToken);

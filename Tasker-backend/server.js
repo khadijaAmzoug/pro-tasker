@@ -19,7 +19,12 @@ const app = express();
 app.use(express.json());
 
 // Enable CORS
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.CLIENT_ORIGIN || "*", 
+    credentials: true,
+  })
+);
 
 // Routes
 app.use('/api/users', usersRouter); // register, login

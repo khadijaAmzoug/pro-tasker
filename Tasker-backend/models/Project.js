@@ -1,12 +1,11 @@
-// File: backend/models/Project.js
 import mongoose from "mongoose";
 
 // Define the schema for a Project
 const projectSchema = new mongoose.Schema(
   {
-    title: {
+    name: {
       type: String,
-      required: true, // Title is required
+      required: true, // name is required
       trim: true,
     },
     description: {

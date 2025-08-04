@@ -11,7 +11,7 @@ export const createTask = async (req, res) => {
   try {
     // Make sure the project exists and belongs to the user
     const project = await Project.findById(projectId)
-    if (!project || project.user.toString() !== req.user.id) {
+    if (!project || project.owner.toString() !== req.user.id) {
       return res.status(403).json({ message: 'Access denied' })
     }
 
@@ -35,7 +35,7 @@ export const getTasksByProject = async (req, res) => {
 
   try {
     const project = await Project.findById(projectId)
-    if (!project || project.user.toString() !== req.user.id) {
+    if (!project || project.owner.toString() !== req.user.id) {
       return res.status(403).json({ message: 'Access denied' })
     }
 
@@ -55,7 +55,7 @@ export const updateTask = async (req, res) => {
 
   try {
     const task = await Task.findById(taskId).populate('project')
-    if (!task || task.project.user.toString() !== req.user.id) {
+    if (!task || task.project.owner.toString() !== req.user.id) {
       return res.status(403).json({ message: 'Access denied' })
     }
 
@@ -78,7 +78,7 @@ export const deleteTask = async (req, res) => {
 
   try {
     const task = await Task.findById(taskId).populate('project')
-    if (!task || task.project.user.toString() !== req.user.id) {
+    if (!task || task.project.owner.toString() !== req.user.id) {
       return res.status(403).json({ message: 'Access denied' })
     }
 
