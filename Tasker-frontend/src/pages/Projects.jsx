@@ -50,7 +50,7 @@ export default function Projects() {
   const [editDesc, setEditDesc] = useState("");
 
   // load projects
-  const reload = () => fetchReq({ url: "/projects", method: "GET" });
+  const reload = () => fetchReq({ url: "/api/projects", method: "GET" });
   useEffect(() => {
     reload();
   }, []); // eslint-disable-line
