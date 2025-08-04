@@ -41,19 +41,19 @@ export default function ProjectDetails() {
 
   useEffect(() => {
     if (!id) return;
-    fetchProject({ url: `/projects/${id}`, method: "GET" });
-    fetchTasks({ url: `/projects/${id}/tasks`, method: "GET" });
+    fetchProject({ url: `/api/projects/${id}`, method: "GET" });
+    fetchTasks({ url: `/api/projects/${id}/tasks`, method: "GET" });
   }, [id, fetchProject, fetchTasks]);
 
-  const refreshProject = () => fetchProject({ url: `/projects/${id}`, method: "GET" });
-  const refreshTasks = () => fetchTasks({ url: `/projects/${id}/tasks`, method: "GET" });
+  const refreshProject = () => fetchProject({ url: `/api/projects/${id}`, method: "GET" });
+  const refreshTasks = () => fetchTasks({ url: `/api/projects/${id}/tasks`, method: "GET" });
 
   // Create new task
   const onCreateTask = async (e) => {
     e.preventDefault();
     if (!title.trim()) return;
     await createTaskReq({
-      url: `/projects/${id}/tasks`,
+      url: `/api/projects/${id}/tasks`,
       method: "POST",
       data: { title, description },
     });
@@ -80,7 +80,7 @@ export default function ProjectDetails() {
   const saveEdit = async () => {
     if (!editId || !editTitle.trim()) return;
     await updateTaskReq({
-      url: `/tasks/${editId}`, // ✅ PATCH URL is now correct
+      url: `/api/tasks/${editId}`, // ✅ PATCH URL is now correct
       method: "PUT",
       data: { title: editTitle, description: editDesc },
     });
@@ -91,7 +91,7 @@ export default function ProjectDetails() {
   // Change task status
   const onUpdateStatus = async (taskId, nextStatus) => {
     await updateTaskReq({
-      url: `/tasks/${taskId}`, // ✅ PATCH URL is now correct
+      url: `/api/tasks/${taskId}`, // ✅ PATCH URL is now correct
       method: "PUT",
       data: { status: nextStatus },
     });
@@ -102,7 +102,7 @@ export default function ProjectDetails() {
   const onDeleteTask = async (taskId) => {
     if (!confirm("Delete this task?")) return;
     await deleteTaskReq({
-      url: `/tasks/${taskId}`, // ✅ DELETE URL is now correct
+      url: `/api/tasks/${taskId}`, // ✅ DELETE URL is now correct
       method: "DELETE",
     });
     await refreshTasks();
@@ -114,7 +114,7 @@ export default function ProjectDetails() {
     setInviteOk("");
     if (!inviteEmail.trim()) return;
     await inviteReq({
-      url: `/projects/${id}/invite`,
+      url: `/api/projects/${id}/invite`,
       method: "POST",
       data: { email: inviteEmail },
     });

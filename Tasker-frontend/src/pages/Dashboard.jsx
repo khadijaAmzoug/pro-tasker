@@ -7,7 +7,7 @@ export default function Dashboard() {
   const { request, data: projects, loading, error } = useApi();
 
   useEffect(() => {
-    request({ url: "/projects", method: "GET" });
+    request({ url: "/api/projects", method: "GET" });
   }, []); // fetch once on load
 
   return (
